@@ -9,26 +9,44 @@ interface TodoList {
 function App() {
   const [todoItem, setTodoItem] = useState("");
   const [todoList, setTodoList] = useState<TodoList[]>([]);
-  const [showEditedList, setShowEditedList] = useState(true);
+  const [showEditInputItemMsg, setShowEditInputItemMsg] = useState(false);
+  const [removalId, setRemovalId] = useState("");
+  const [editId, setEditId] = useState("");
+  const [editedInputValue, setEditedInputValue] = useState("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!todoItem) return;
-    let todoId = uuidv4();
+    let todoId: string = uuidv4();
 
     setTodoList((todoList) => [...todoList, { todoItem, todoId }]);
-
     setTodoItem("");
   };
 
-  const editInputItem = (id: string) => {
-    const newTodoList = todoList.filter((element) => element.todoId !== id);
-
-    setTodoList([...newTodoList, { todoItem, todoId: id }]);
-
-    // setTodoList([newTodoList]);
+  const handleEditedInputTodo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedInputValue(e.target.value);
+    setShowEditInputItemMsg(false);
   };
-  console.log(todoList);
+
+  const handleRemoveTodo = (id: string) => {
+    const updatedTodoList = todoList.filter((todo) => todo.todoId !== id);
+    setTodoList(updatedTodoList);
+  };
+
+  const handleEditedSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (editedInputValue === "") {
+      setShowEditInputItemMsg(true);
+    } else {
+      const editedTodoList = todoList.map((todo) =>
+        todo.todoId === editId ? { ...todo, todoItem: editedInputValue } : todo
+      );
+      setTodoList(editedTodoList);
+      setEditId(" ");
+      setEditedInputValue("");
+    }
+  };
+
   return (
     <div className=" w-screen h-full border border-red-500">
       <form
@@ -46,28 +64,51 @@ function App() {
         <button type="submit">Add</button>
       </form>
       <div>
-        {todoList.length > 0 && (
-          <div>
-            {todoList.map((todo) => {
-              return (
-                <div
-                  key={todo.todoId}
-                  className="flex justify-evenly items-evenly w-9/12  mb-4"
+        {todoList.map((todo) =>
+          todo.todoId === editId ? (
+            <div key={todo.todoId}>
+              <form onSubmit={handleEditedSubmit}>
+                <label>
+                  <input
+                    type="text"
+                    name="editedTodo"
+                    defaultValue={todo.todoItem}
+                    onChange={(e) => handleEditedInputTodo(e)}
+                  />
+                </label>
+                <button type="submit">Update</button>
+                <button onClick={() => setEditId("")}>Cancel</button>
+              </form>
+              {showEditInputItemMsg && (
+                <p className="text-red-600">Please change the TodoItem</p>
+              )}
+            </div>
+          ) : (
+            <>
+              <div key={todo.todoId}>
+                <div>{todo.todoItem}</div>
+                <button
+                  onClick={() => {
+                    setEditId(todo.todoId);
+                  }}
                 >
-                  <div>{todo.todoItem}</div>
-                  <button
-                    className="border-2 border-slate-500 p-1"
-                    onClick={() => {
-                      editInputItem(todo.todoId);
-                      setTodoItem("");
-                    }}
-                  >
-                    edit
+                  Edit
+                </button>
+                <button onClick={() => setRemovalId(todo.todoId)}>
+                  Remove
+                </button>
+              </div>
+              {removalId === todo.todoId && (
+                <>
+                  <h3>Do you want to remove the todoItem ? </h3>
+                  <button onClick={() => handleRemoveTodo(todo.todoId)}>
+                    Yes
                   </button>
-                </div>
-              );
-            })}
-          </div>
+                  <button onClick={() => setRemovalId("")}>No</button>
+                </>
+              )}
+            </>
+          )
         )}
       </div>
     </div>
