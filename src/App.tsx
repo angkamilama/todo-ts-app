@@ -76,7 +76,7 @@ function App() {
                 onSubmit={handleEditedSubmit}
                 className=" flex justify-evenly items-center w-[500px]"
               >
-                <label className="border border-dashed border-red-300 w-1/2 p-1 ">
+                <label className="border-2  border-blue-700 w-1/2 p-1 rounded-lg">
                   <input
                     type="text"
                     name="editedTodo"
@@ -110,7 +110,7 @@ function App() {
                 key={todo.todoId}
                 className=" flex justify-between items-center w-[500px] mb-4"
               >
-                <div className="border border-dashed border-red-300 w-1/2 p-1 text-center">
+                <div className="border border-dashed border-red-300 w-1/2 p-1 text-center rounded-lg">
                   {todo.todoItem}
                 </div>
                 <div className="flex justify-evenly items-center w-1/2 ">
@@ -143,7 +143,7 @@ function App() {
                   </button>
                   <button
                     onClick={() => setRemovalId("")}
-                    className="bg-red-400 rounded-lg px-2 p-1 hover:bg-red-800"
+                    className="bg-red-400 rounded-lg px-2 p-1 hover:bg-red-700 hover:text-white"
                   >
                     No
                   </button>
