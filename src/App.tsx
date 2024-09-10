@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { Input } from "@/components/ui/input";
 
 interface TodoList {
   todoItem: string;
@@ -49,24 +50,23 @@ function App() {
 
   return (
     <div className=" w-screen h-screen flex flex-col justify-evenly items-center border border-red-300">
-      <form
-        onSubmit={handleSubmit}
-        className="flex justify-evenly items-center w-[500px] h-[300px] border border-green-300 "
-      >
-        <label>
-          Todo:
-          <input
-            value={todoItem}
-            onChange={(e) => setTodoItem(e.target.value)}
-            className="border border-dotted border-sky-700 rounded-lg ml-2 p-2 outline-none"
-          />
-        </label>
-        <button
-          type="submit"
-          className="p-2 bg-slate-500 rounded-lg text-slate-100 hover:bg-slate-600"
-        >
-          Add
-        </button>
+      <form onSubmit={handleSubmit}>
+        <div className="flex justify-evenly items-center w-[500px] h-[300px] border border-green-300 ">
+          <label className="flex justify-between items-center  w-2/3 ">
+            Todo:
+            <Input
+              value={todoItem}
+              onChange={(e) => setTodoItem(e.target.value)}
+              className=" rounded-lg  ml-3"
+            />
+          </label>
+          <button
+            type="submit"
+            className="p-2 border border-slate-300 bg-slate-300 rounded-lg text-grey-400 hover:bg-slate-500 hover:text-slate-200"
+          >
+            Add
+          </button>
+        </div>
       </form>
       <div className="flex flex-col justify-evenly items-center">
         {todoList.map((todo) =>
