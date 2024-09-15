@@ -1,159 +1,63 @@
-import { useState } from "react";
+import { useState, useReducer } from "react";
+import { Input } from "./components/ui/input";
 import { v4 as uuidv4 } from "uuid";
-import { Input } from "@/components/ui/input";
 
-interface TodoList {
-  todoItem: string;
-  todoId: string;
-}
+const ADD_TODO = "ADD_TODO";
+
+const InitialState = {
+  todoList: [],
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case ADD_TODO: {
+      return {
+        ...state,
+        todoList: [
+          ...state.todoList,
+          { todoItem: action.todoItem, id: action.id },
+        ], // Correct state update
+      };
+    }
+    default:
+      return state;
+  }
+};
 
 function App() {
   const [todoItem, setTodoItem] = useState("");
-  const [todoList, setTodoList] = useState<TodoList[]>([]);
-  const [showEditInputItemMsg, setShowEditInputItemMsg] = useState(false);
-  const [removalId, setRemovalId] = useState("");
-  const [editId, setEditId] = useState("");
-  const [editedInputValue, setEditedInputValue] = useState("");
+  const [todo, dispatch] = useReducer(reducer, InitialState);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!todoItem) return;
     let todoId: string = uuidv4();
-
-    setTodoList((todoList) => [...todoList, { todoItem, todoId }]);
-    setTodoItem("");
-  };
-
-  const handleEditedInputTodo = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedInputValue(e.target.value);
-    setShowEditInputItemMsg(false);
-  };
-
-  const handleRemoveTodo = (id: string) => {
-    const updatedTodoList = todoList.filter((todo) => todo.todoId !== id);
-    setTodoList(updatedTodoList);
-  };
-
-  const handleEditedSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (editedInputValue === "") {
-      setShowEditInputItemMsg(true);
-    } else {
-      const editedTodoList = todoList.map((todo) =>
-        todo.todoId === editId ? { ...todo, todoItem: editedInputValue } : todo
-      );
-      setTodoList(editedTodoList);
-      setEditId(" ");
-      setEditedInputValue("");
-    }
+    dispatch({ type: ADD_TODO, todoItem: e.target.value, id: todoId });
   };
 
   return (
-    <div className=" w-screen h-screen flex flex-col justify-evenly items-center border border-red-300">
-      <form onSubmit={handleSubmit}>
-        <div className="flex justify-evenly items-center w-[500px] h-[300px] border border-green-300 ">
-          <label className="flex justify-between items-center  w-2/3 ">
+    <>
+      <div>
+        <form onSubmit={handleSubmit}>
+          <label>
             Todo:
             <Input
+              type="text"
               value={todoItem}
               onChange={(e) => setTodoItem(e.target.value)}
-              className=" rounded-lg  ml-3"
             />
           </label>
-          <button
-            type="submit"
-            className="p-2 border border-slate-300 bg-slate-300 rounded-lg text-grey-400 hover:bg-slate-500 hover:text-slate-200"
-          >
+          <button className="border border-slate-700 bg-slate-300 p-1 rounded-lg">
             Add
           </button>
-        </div>
-      </form>
-      <div className="flex flex-col justify-evenly items-center">
-        {todoList.map((todo) =>
-          todo.todoId === editId ? (
-            <div key={todo.todoId}>
-              <form
-                onSubmit={handleEditedSubmit}
-                className=" flex justify-evenly items-center w-[500px]"
-              >
-                <label className="border-2  border-blue-700 w-1/2 p-1 rounded-lg">
-                  <input
-                    type="text"
-                    name="editedTodo"
-                    defaultValue={todo.todoItem}
-                    onChange={(e) => handleEditedInputTodo(e)}
-                    className="text-center outline-none"
-                  />
-                </label>
-                <div className="flex justify-evenly items-center w-1/2 ">
-                  <button
-                    type="submit"
-                    className="bg-green-300 rounded-lg px-2 p-1 hover:bg-green-400"
-                  >
-                    Update
-                  </button>
-                  <button
-                    onClick={() => setEditId("")}
-                    className="bg-red-400 rounded-lg px-2 p-1 hover:bg-red-500"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-              {showEditInputItemMsg && (
-                <p className="text-red-600">Please change the TodoItem</p>
-              )}
-            </div>
-          ) : (
-            <div>
-              <div
-                key={todo.todoId}
-                className=" flex justify-between items-center w-[500px] mb-4"
-              >
-                <div className="border border-dashed border-red-300 w-1/2 p-1 text-center rounded-lg">
-                  {todo.todoItem}
-                </div>
-                <div className="flex justify-evenly items-center w-1/2 ">
-                  <button
-                    onClick={() => {
-                      setEditId(todo.todoId);
-                    }}
-                    className="bg-green-300 rounded-lg px-2 p-1 hover:bg-green-400"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => setRemovalId(todo.todoId)}
-                    className="bg-red-400 rounded-lg px-2 p-1 hover:bg-red-500"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-              {removalId === todo.todoId && (
-                <div className="w-full flex justify-between items-center mt-3 border border-dashed border-slate-400 p-2 rounded-lg mb-2">
-                  <h3 className="text-slate-800">
-                    Do you want to remove the todoItem ?{" "}
-                  </h3>
-                  <button
-                    onClick={() => handleRemoveTodo(todo.todoId)}
-                    className="bg-green-500 rounded-lg px-2 p-1 hover:bg-green-800 hover:text-white"
-                  >
-                    Yes
-                  </button>
-                  <button
-                    onClick={() => setRemovalId("")}
-                    className="bg-red-400 rounded-lg px-2 p-1 hover:bg-red-700 hover:text-white"
-                  >
-                    No
-                  </button>
-                </div>
-              )}
-            </div>
-          )
-        )}
+        </form>
+        <ul>
+          {todo.todoList.map((item) => (
+            <li key={item.id}>{item.todoItem}</li>
+          ))}
+        </ul>
       </div>
-    </div>
+    </>
   );
 }
 
