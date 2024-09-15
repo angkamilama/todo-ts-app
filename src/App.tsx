@@ -4,21 +4,18 @@ import { v4 as uuidv4 } from "uuid";
 
 const ADD_TODO = "ADD_TODO";
 
-const InitialState = {
-  todoList: [],
-};
+interface Todo {
+  todoItem: string;
+  id: string;
+  type?: string;
+}
 
-const reducer = (state, action) => {
+const initialState: Todo[] = [];
+
+const reducer = (state: Todo[], action: Todo) => {
   switch (action.type) {
-    case ADD_TODO: {
-      return {
-        ...state,
-        todoList: [
-          ...state.todoList,
-          { todoItem: action.todoItem, id: action.id },
-        ], // Correct state update
-      };
-    }
+    case ADD_TODO:
+      return [...state, { todoItem: action.todoItem, id: action.id }];
     default:
       return state;
   }
@@ -26,13 +23,14 @@ const reducer = (state, action) => {
 
 function App() {
   const [todoItem, setTodoItem] = useState("");
-  const [todo, dispatch] = useReducer(reducer, InitialState);
+  const [todo, dispatch] = useReducer(reducer, initialState);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!todoItem) return;
     let todoId: string = uuidv4();
-    dispatch({ type: ADD_TODO, todoItem: e.target.value, id: todoId });
+    dispatch({ type: ADD_TODO, todoItem: todoItem, id: todoId });
+    setTodoItem("");
   };
 
   return (
@@ -52,9 +50,15 @@ function App() {
           </button>
         </form>
         <ul>
-          {todo.todoList.map((item) => (
-            <li key={item.id}>{item.todoItem}</li>
-          ))}
+          {todo.map((item) => {
+            return (
+              <div>
+                <li key={item.id}>{item.todoItem}</li>
+                <button>Edit</button>
+                <button>Remove</button>
+              </div>
+            );
+          })}
         </ul>
       </div>
     </>
