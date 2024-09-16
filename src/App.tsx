@@ -3,6 +3,8 @@ import { Input } from "./components/ui/input";
 import { v4 as uuidv4 } from "uuid";
 
 const ADD_TODO = "ADD_TODO";
+const REMOVE_TODO = "REMOVE_TODO";
+const EDIT_TODO = "EDIT_TODO";
 
 interface Todo {
   todoItem: string;
@@ -14,8 +16,14 @@ const initialState: Todo[] = [];
 
 const reducer = (state: Todo[], action: Todo) => {
   switch (action.type) {
-    case ADD_TODO:
+    case ADD_TODO: {
       return [...state, { todoItem: action.todoItem, id: action.id }];
+    }
+    case EDIT_TODO: {
+      return state.map((item) =>
+        item.id === action.id ? { ...item, todoItem: action.todoItem } : item
+      );
+    }
     default:
       return state;
   }
@@ -24,6 +32,8 @@ const reducer = (state: Todo[], action: Todo) => {
 function App() {
   const [todoItem, setTodoItem] = useState("");
   const [todo, dispatch] = useReducer(reducer, initialState);
+  const [editedTodoItem, setEditedTodoItem] = useState("");
+  const [editedId, setEditedId] = useState("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,6 +43,9 @@ function App() {
     setTodoItem("");
   };
 
+  const handleEditedInput = (id: string) => {
+    setEditedId(id);
+  };
   return (
     <>
       <div>
@@ -50,15 +63,40 @@ function App() {
           </button>
         </form>
         <ul>
-          {todo.map((item) => {
-            return (
-              <div>
-                <li key={item.id}>{item.todoItem}</li>
-                <button>Edit</button>
-                <button>Remove</button>
-              </div>
-            );
-          })}
+          {todo.map((item) => (
+            <li key={item.id}>
+              {editedId === item.id ? (
+                <div>
+                  <Input
+                    type="text"
+                    value={editedTodoItem}
+                    onChange={(e) => setEditedTodoItem(e.target.value)}
+                  />
+                  <button
+                    className="border border-slate-700 bg-slate-300 p-1 rounded-lg"
+                    onClick={() => {
+                      dispatch({
+                        type: EDIT_TODO,
+                        id: item.id,
+                        todoItem: editedTodoItem,
+                      });
+                      setEditedId(" "); // Reset the editedId after changing the todo
+                    }}
+                  >
+                    Change
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  {item.todoItem}
+                  <button onClick={() => handleEditedInput(item.id)}>
+                    Edit
+                  </button>
+                  <button>Remove</button>
+                </div>
+              )}
+            </li>
+          ))}
         </ul>
       </div>
     </>
