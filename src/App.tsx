@@ -103,7 +103,17 @@ function App() {
                 </div>
               ) : (
                 <div className=" w-10/12 p-1 flex justify-evenly items-center mx-auto">
-                  <p className="w-6/12 p-1 text-center"> {item.todoItem}</p>
+                  <p className="w-6/12 p-1 text-center">
+                    {" "}
+                    {!item.todoItem ? (
+                      <p className="text-red-700 font-bold">
+                        PLEASE EDIT AGAIN
+                      </p>
+                    ) : (
+                      item.todoItem
+                    )}
+                  </p>
+
                   <div className="flex justify-evenly items-center w-4/12 ">
                     <button
                       onClick={() => setEditedId(item.id)}
