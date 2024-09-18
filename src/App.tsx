@@ -14,8 +14,6 @@ interface Todo {
   type?: string;
 }
 
-const initialState: Todo[] = [];
-
 const reducer = (state: Todo[], action: Todo) => {
   switch (action.type) {
     case ActionTypes.ADD_TODO: {
@@ -23,7 +21,13 @@ const reducer = (state: Todo[], action: Todo) => {
     }
     case ActionTypes.EDIT_TODO: {
       return state.map((item) =>
-        item.id === action.id ? { ...item, todoItem: action.todoItem } : item
+        item.id === action.id
+          ? {
+              ...item,
+              //added this conditional statement
+              todoItem: action.todoItem ? action.todoItem : item.todoItem,
+            }
+          : item
       );
     }
     case ActionTypes.REMOVE_TODO: {
@@ -34,12 +38,13 @@ const reducer = (state: Todo[], action: Todo) => {
   }
 };
 
+const initialState: Todo[] = [];
+
 function App() {
   const [todoItem, setTodoItem] = useState("");
   const [editedTodoItem, setEditedTodoItem] = useState("");
   const [editedId, setEditedId] = useState("");
   const [todo, dispatch] = useReducer(reducer, initialState);
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!todoItem) return;
@@ -48,6 +53,7 @@ function App() {
     setTodoItem("");
   };
 
+  //sorted the list as per alphabetical order.
   const sortedTodo = [...todo].sort((a, b) => {
     const nameA = a.todoItem.toLowerCase();
     const nameB = b.todoItem.toLowerCase();
@@ -61,18 +67,18 @@ function App() {
       <div className="w-full h-screen flex flex-col justify-center items-center box-border">
         <form
           onSubmit={handleSubmit}
-          className=" p-3 w-1/3 flex justify-around items-center mb-5"
+          className=" p-3 h-[130px] flex flex-col justify-evenly items-center  md:flex-row  md:justify-between items-center w-2/3 md:w-1/3  mb-5"
         >
-          <label className="flex justify-between items-center w-2/3">
+          <label className="flex justify-evenly items-center w-full ">
             TODO
             <Input
               type="text"
               value={todoItem}
               onChange={(e) => setTodoItem(e.target.value)}
-              className="ml-5 "
+              className="ml-5 w-[200px] md:w-[300px]"
             />
           </label>
-          <button className="border border-slate-700 bg-slate-300 px-3 py-1 rounded-lg">
+          <button className="border border-slate-700 bg-slate-300 px-3 py-1 rounded-lg ml-2">
             Add
           </button>
         </form>
@@ -103,20 +109,13 @@ function App() {
                 </div>
               ) : (
                 <div className=" w-10/12 p-1 flex justify-evenly items-center mx-auto">
-                  <p className="w-6/12 p-1 text-center">
-                    {" "}
-                    {!item.todoItem ? (
-                      <p className="text-red-700 font-bold">
-                        PLEASE EDIT AGAIN
-                      </p>
-                    ) : (
-                      item.todoItem
-                    )}
-                  </p>
-
+                  <p className="w-6/12 p-1 text-center">{item.todoItem}</p>
                   <div className="flex justify-evenly items-center w-4/12 ">
                     <button
-                      onClick={() => setEditedId(item.id)}
+                      onClick={() => {
+                        setEditedId(item.id);
+                        setEditedTodoItem(item.todoItem); // added this here
+                      }}
                       className="border border-slate-700 bg-slate-300 px-3  rounded-lg"
                     >
                       Edit
